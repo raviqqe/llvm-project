@@ -813,6 +813,9 @@ MLIR_CAPI_EXPORTED MlirBlock mlirBlockGetNextInRegion(MlirBlock block);
 /// Returns the first operation in the block.
 MLIR_CAPI_EXPORTED MlirOperation mlirBlockGetFirstOperation(MlirBlock block);
 
+/// Returns the last operation in the block.
+MLIR_CAPI_EXPORTED MlirOperation mlirBlockGetLastOperation(MlirBlock block);
+
 /// Returns the terminator operation in the block or null if no terminator.
 MLIR_CAPI_EXPORTED MlirOperation mlirBlockGetTerminator(MlirBlock block);
 

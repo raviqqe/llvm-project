@@ -1840,6 +1840,19 @@ PyInsertionPoint PyInsertionPoint::atBlockBegin(PyBlock &block) {
   return PyInsertionPoint{block, std::move(firstOpRef)};
 }
 
+PyInsertionPoint PyInsertionPoint::atBlockEnd(PyBlock &block) {
+  MlirOperation lastOp = mlirBlockGetLastOperation(block.get());
+  if (mlirOperationIsNull(lastOp)) {
+    // Just insert at end.
+    return PyInsertionPoint(block);
+  }
+
+  // Insert after last op.
+  PyOperationRef lastOpRef = PyOperation::forOperation(
+      block.getParentOperation()->getContext(), lastOp);
+  return PyInsertionPoint{block, std::move(lastOpRef)};
+}
+
 PyInsertionPoint PyInsertionPoint::atBlockTerminator(PyBlock &block) {
   MlirOperation terminator = mlirBlockGetTerminator(block.get());
   if (mlirOperationIsNull(terminator))
@@ -2989,8 +3002,7 @@ void mlir::python::populateIRCore(py::module &m) {
            py::arg("binary") = false, kOperationPrintStateDocstring)
       .def("print",
            py::overload_cast<std::optional<int64_t>, bool, bool, bool, bool,
-                             bool, py::object, bool>(
-               &PyOperationBase::print),
+                             bool, py::object, bool>(&PyOperationBase::print),
            // Careful: Lots of arguments must match up with print method.
            py::arg("large_elements_limit") = py::none(),
            py::arg("enable_debug_info") = false,
